@@ -11,7 +11,6 @@ def read_text_lines(fname):
         return ''.join(lines)
 
 
-
 setup(
     name="word_cloud",
     version=tag(),
