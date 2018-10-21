@@ -33,7 +33,7 @@ setup(
     download_url='https://github.com/kavgan/word_cloud/archive/{0}.tar.gz'.format(tag()),
     keywords=['word cloud','visualization','text mining'],
     install_requires=[
-        
+
     ],
     include_package_data=True,
     entry_points={
