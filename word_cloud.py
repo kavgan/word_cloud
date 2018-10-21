@@ -1,5 +1,10 @@
+'''
+
+Generate HTML code for word cloud
+
+'''
+
 import pandas as pd
-import math
 import random
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
@@ -35,7 +40,12 @@ class WordCloud:
                               '#725394'
                               ]
 
+        # load a set of stop words
+        self.stopwords = self.get_stop_words("stopwords.txt")
+
     def get_color_code(self, score):
+        """Get the appropriate color codes."""
+
         step = 0.05
         current_incremented_score = 0
         idx = 0
@@ -48,7 +58,7 @@ class WordCloud:
 
         return self.color_choices[0]
 
-    def get_font_size(self, score:float):
+    def get_font_size(self, score: float):
         """Increment scale until score almost equals current_incremented_score."""
 
         # font size start and increment
@@ -59,7 +69,6 @@ class WordCloud:
         # score increment
         score_step = 0.05
         current_incremented_score = 0
-
 
         while current_incremented_score < 1 and scale < max_scale:
 
@@ -107,24 +116,25 @@ class WordCloud:
         tuples = zip(coo_matrix.col, coo_matrix.data)
         return sorted(tuples, key=lambda x: (x[1], x[0]), reverse=True)
 
-    def get_stop_words(stop_file_path):
-        """load stop words """
+    def get_stop_words(self, stop_file_path):
+        """Load stop words."""
 
         with open(stop_file_path, 'r', encoding="utf-8") as f:
             stopwords = f.readlines()
             stop_set = set(m.strip() for m in stopwords)
             return frozenset(stop_set)
 
-        # load a set of stop words
-        stopwords = get_stop_words("resources/stopwords.txt")
-
     def extract_topn_from_vector(self, text: list, topn=10):
+        """Extract keywords based on tf-idf score."""
 
-        cv = CountVectorizer(stop_words='english')
-        word_count_vector = cv.fit_transform(text)  # generate tf-idf for the given document
+        # get word count
+        cv = CountVectorizer(stop_words=self.stopwords)
+        word_count_vector = cv.fit_transform(text)
 
+        # concatenate all texts
         big_text = ' '.join(text)
 
+        # compute word scores
         tfidf_transformer = TfidfTransformer(smooth_idf=True, use_idf=True)
         tfidf_transformer.fit(word_count_vector)
         tf_idf_vector = tfidf_transformer.transform(cv.transform([big_text]))
@@ -135,15 +145,10 @@ class WordCloud:
         # use only topn items from vector
         sorted_items = sorted_items[:topn]
 
-        items = []
+        final_items = []
 
         # word index and corresponding tf-idf score
         for idx, score in sorted_items:
-            items.append([cv.get_feature_names()[idx], score])
+            final_items.append([cv.get_feature_names()[idx], score])
 
-        return items
-
-wc=WordCloud()
-texts=['It works used works for any interable, not just lists. Disadvantage is that its not in place.','the','used','used','used','We now need to create the vocabulary vocabulary vocabulary vocabulary vocab vocab vocab and start the counting process. We can use the CountVectorizer to create a vocabulary from all the text in our']
-embed_code=wc.get_embed_code(texts,random_color=False,topn=100)
-print(embed_code)
+        return final_items
