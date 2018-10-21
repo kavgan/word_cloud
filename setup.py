@@ -1,5 +1,4 @@
 from setuptools import setup, find_packages
-from subprocess import Popen, PIPE
 import io,os,sys
 
 def tag():
