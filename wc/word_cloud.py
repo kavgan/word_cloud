@@ -12,7 +12,7 @@ from sklearn.feature_extraction.text import TfidfTransformer
 
 class WordCloud:
 
-    def __init__(self):
+    def __init__(self,stopwords=[]):
         self.data = []
         self.color_choices = ['#b82c2c',
                               '#a55571',
@@ -41,7 +41,7 @@ class WordCloud:
                               ]
 
         # load a set of stop words
-        self.stopwords = self.get_stop_words("stopwords.txt")
+        self.stopwords = stopwords
 
     def get_color_code(self, score):
         """Get the appropriate color codes."""
@@ -116,13 +116,6 @@ class WordCloud:
         tuples = zip(coo_matrix.col, coo_matrix.data)
         return sorted(tuples, key=lambda x: (x[1], x[0]), reverse=True)
 
-    def get_stop_words(self, stop_file_path):
-        """Load stop words."""
-
-        with open(stop_file_path, 'r', encoding="utf-8") as f:
-            stopwords = f.readlines()
-            stop_set = set(m.strip() for m in stopwords)
-            return frozenset(stop_set)
 
     def extract_topn_from_vector(self, text: list, topn=10):
         """Extract keywords based on tf-idf score."""
