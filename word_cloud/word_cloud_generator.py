@@ -5,6 +5,8 @@ Generate HTML code for word cloud
 '''
 
 import pandas as pd
+import logging
+import numpy as np
 import random
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
@@ -12,8 +14,35 @@ from sklearn.feature_extraction.text import TfidfTransformer
 
 class WordCloud:
 
-    def __init__(self,stopwords=[]):
+    def __init__(self, stopwords=[], use_tfidf=False):
+
+        self.use_tfidf = use_tfidf
         self.data = []
+        self.color_choices = ['#b82c2c',
+                              '#a55571',
+                              '#bc72d0',
+                              '#8000FF',
+                              '#3498DB',
+                              '#FF5733',
+                              '#223AE6',
+                              '#2ECC71',
+                              '#5F6A6A',
+                              '#6C22E6',
+                              '#CE22E6',
+                              '#ACB02E',
+                              '#B18904',
+                              '#848484',
+                              '#04B404',
+                              '#5882FA',
+                              '#FF0080',
+                              '#0489B1',
+                              '#FA5858',
+                              '#DBA901',
+                              '#00b4ff',
+                              '#008080',
+                              '#003366',
+                              '#725394'
+                              ]
         self.color_choices = ['#b82c2c',
                               '#a55571',
                               '#bc72d0',
@@ -62,7 +91,7 @@ class WordCloud:
         """Increment scale until score almost equals current_incremented_score."""
 
         # font size start and increment
-        scale = 0.6
+        scale = 0.5
         max_scale = 3.0
         scale_step = 0.3
 
@@ -85,30 +114,38 @@ class WordCloud:
 
         return scale
 
-    def get_embed_code(self, text: list, topn=100, random_color=True):
+    def get_embed_code(self, text_scores: pd.DataFrame = None, text: list = [], topn=100, random_color=True):
 
-        items = self.extract_topn_from_vector(text, topn=topn)
-        new_df = pd.DataFrame(items, columns=['words', 'score'])
+        if text_scores is None and len(text) > 0:
+            items = self.extract_topn_from_vector(text, topn=topn)
+            text_df = pd.DataFrame(items, columns=['words', 'score'])
+        elif text_scores is not None:
+            text_df = text_scores
+            text_df.columns = ['words', 'score']
+        else:
+            logging.error(
+                "There is a problem with your input text. Did you provide any?")
+            return
 
         if random_color:
             random.shuffle(self.color_choices)
 
-        html = []
-        words_colors = []
+        word_cloud_items = []
 
         html = [
             "<div align='center' style='width:100%'><div align='center' style='text-align:justify; border-radius: 25px;background: #fff7f7;overflow: auto; width:500px !important; padding:20px; '; text-align: center; word-wrap: break-word;>"]
-        for idx, row in new_df.iterrows():
+        for idx, row in text_df.iterrows():
             word = row.words.replace(" ", "-")
             scale = self.get_font_size(row.score)
             color_code = self.get_color_code(row.score)
-            words_colors.append(
-                " <span style='color:{0};font-size:{1}em;white-space: normal;font-family:verdana;display: inline-block;line-height:20px'>{2}&nbsp;</span>".format(
+            word_cloud_items.append(
+                " <span style='color:{0};font-size:{1}em;white-space: normal;font-family:verdana;display: inline-block;line-height:30px'>{2}&nbsp;</span>".format(
                     color_code, scale, word))
 
-        random.shuffle(words_colors)
+        random.shuffle(word_cloud_items)
+        random.shuffle(word_cloud_items)
 
-        html.extend(words_colors)
+        html.extend(word_cloud_items)
         html.append("</div></div>")
         return ''.join(html)
 
@@ -116,6 +153,32 @@ class WordCloud:
         tuples = zip(coo_matrix.col, coo_matrix.data)
         return sorted(tuples, key=lambda x: (x[1], x[0]), reverse=True)
 
+    def get_normalized_tf(self, cv: CountVectorizer, text: list):
+        """Get normalized tf."""
+
+        big_text = ' '.join(text)
+        word_count_vector = cv.fit_transform([big_text])
+        max = np.max(word_count_vector)
+
+        # normalize raw counts
+        word_count_vector = np.multiply(word_count_vector, 1/(max*2))
+
+        return word_count_vector
+
+    def get_tfidf_scores(self, cv: CountVectorizer, text: list):
+        """Get tfidf values."""
+
+        word_count_vector = cv.fit_transform(text)
+
+        big_text = ' '.join(text)
+
+        # compute word scores
+        tfidf_transformer = TfidfTransformer(
+            smooth_idf=False, use_idf=True, norm='l2')
+        tfidf_transformer.fit(word_count_vector)
+        tf_idf_vector = tfidf_transformer.transform(cv.transform([big_text]))
+
+        return tf_idf_vector
 
     def extract_topn_from_vector(self, text: list, topn=10):
         """Extract keywords based on tf-idf score."""
@@ -127,13 +190,14 @@ class WordCloud:
         # concatenate all texts
         big_text = ' '.join(text)
 
-        # compute word scores
-        tfidf_transformer = TfidfTransformer(smooth_idf=True, use_idf=True)
-        tfidf_transformer.fit(word_count_vector)
-        tf_idf_vector = tfidf_transformer.transform(cv.transform([big_text]))
+        word_scores_vector = None
+        if self.use_tfidf:
+            word_scores_vector = self.get_tfidf_scores(cv, text)
+        else:
+            word_scores_vector = self.get_normalized_tf(cv, text)
 
         # sort the tf-idf vectors by descending order of scores
-        sorted_items = self.sort_coo(tf_idf_vector.tocoo())
+        sorted_items = self.sort_coo(word_scores_vector.tocoo())
 
         # use only topn items from vector
         sorted_items = sorted_items[:topn]
