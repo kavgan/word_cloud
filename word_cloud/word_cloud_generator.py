@@ -92,14 +92,14 @@ class WordCloud:
 
         # font size start and increment
         scale = 0.5
-        max_scale = 2.7
-        scale_step = 0.25
+        max_scale = 2.5
+        scale_step = 0.15
 
         # score increment
         score_step = 0.05
         current_incremented_score = 0
 
-        while current_incremented_score < 1 and scale < max_scale:
+        while current_incremented_score < 1:
 
             # increment scale until score almost equals current_incremented_score
             # the larger the score, the more the scale increment
@@ -109,8 +109,8 @@ class WordCloud:
             current_incremented_score = current_incremented_score + score_step
             scale += scale_step
 
-            if scale > max_scale:
-                scale = max_scale
+            #if scale > max_scale:
+             #   scale = max_scale
 
         return scale
 
@@ -153,6 +153,17 @@ class WordCloud:
         tuples = zip(coo_matrix.col, coo_matrix.data)
         return sorted(tuples, key=lambda x: (x[1], x[0]), reverse=True)
 
+
+    def get_ranks(self,word_vector):
+        """Get normalized tf."""
+
+        max = np.max(word_vector)
+
+        # normalize raw counts
+        word_count_vector = np.multiply(word_vector, 1/(max))
+
+        return word_count_vector
+
     def get_normalized_tf(self, cv: CountVectorizer, text: list):
         """Get normalized tf."""
 
@@ -161,7 +172,7 @@ class WordCloud:
         max = np.max(word_count_vector)
 
         # normalize raw counts
-        word_count_vector = np.multiply(word_count_vector, 1/(max*2))
+        word_count_vector = np.multiply(word_count_vector, 1/(max))
 
         return word_count_vector
 
@@ -185,10 +196,6 @@ class WordCloud:
 
         # get word count
         cv = CountVectorizer(stop_words=self.stopwords)
-        word_count_vector = cv.fit_transform(text)
-
-        # concatenate all texts
-        big_text = ' '.join(text)
 
         word_scores_vector = None
         if self.use_tfidf:
@@ -196,11 +203,13 @@ class WordCloud:
         else:
             word_scores_vector = self.get_normalized_tf(cv, text)
 
+        #word_scores_vector=self.get_ranks(word_scores_vector)
+
         # sort the tf-idf vectors by descending order of scores
         sorted_items = self.sort_coo(word_scores_vector.tocoo())
-
-        # use only topn items from vector
         sorted_items = sorted_items[:topn]
+
+
 
         final_items = []
 
