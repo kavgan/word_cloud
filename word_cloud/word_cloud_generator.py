@@ -92,8 +92,8 @@ class WordCloud:
 
         # font size start and increment
         scale = 0.5
-        max_scale = 3.0
-        scale_step = 0.3
+        max_scale = 2.7
+        scale_step = 0.25
 
         # score increment
         score_step = 0.05
