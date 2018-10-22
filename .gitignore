@@ -1,2 +1,4 @@
 *.xml
 *.iml
+.ipynb_checkpoints/Word Cloud Examples-checkpoint.ipynb
+*.pyc
