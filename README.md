@@ -64,4 +64,4 @@ HTML(embed_code)
 ## More Examples
 - [Checkout Jupyter Notebook from this Repo](https://github.com/kavgan/word_cloud/blob/master/Example%20word%20clouds.ipynb) (word cloud only renders if your server is running)
 - [Jupyter Notebook on Google's Colaboratory](https://colab.research.google.com/drive/1AkdUKEFmaYom77r6KPh18jdQrplIQbKQ)
-- [Article]()
+- [Article]( http://kavita-ganesan.com/word-cloud-for-data-scientists/ )
