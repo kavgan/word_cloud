@@ -3,6 +3,15 @@ Library for word cloud visualization for data scientists. Use within Jupyter not
 
 ![alt text](word_cloud.gif)
 
+## Features
+
+- Generate word cloud for individual documents
+- Generate word cloud using a list of documents
+- Generate word cloud for words or phrases that already have scores defined
+- Embed in Jupyter Notebook
+- Show on an HTML page
+- Randomize colors
+
 
 ## Quick Start
 
