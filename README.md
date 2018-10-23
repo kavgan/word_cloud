@@ -53,5 +53,6 @@ HTML(embed_code)
 ```
 
 ## More Examples
-- [Checkout this Jupyter Notebook](https://github.com/kavgan/word_cloud/blob/master/Example%20word%20clouds.ipynb) (word cloud only renders if your server is running)
+- [Checkout Jupyter Notebook from this Repo](https://github.com/kavgan/word_cloud/blob/master/Example%20word%20clouds.ipynb) (word cloud only renders if your server is running)
+- [Jupyter Notebook on Google's Colaboratory](https://colab.research.google.com/drive/1AkdUKEFmaYom77r6KPh18jdQrplIQbKQ)
 - [Article]()
