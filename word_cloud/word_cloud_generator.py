@@ -87,13 +87,14 @@ class WordCloud:
 
         return self.color_choices[0]
 
+
     def get_font_size(self, score: float):
         """Increment scale until score almost equals current_incremented_score."""
 
         # font size start and increment
         scale = 0.5
         max_scale = 2.5
-        scale_step = 0.15gi
+        scale_step = 0.15
 
         # score increment
         score_step = 0.05
