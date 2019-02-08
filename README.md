@@ -21,7 +21,7 @@ Library for word cloud visualization for data scientists. Use within Jupyter not
 pip install git+ssh://git@github.com/kavgan/word_cloud.git
 ```
 
-2. Instatiate WordCloud, get word cloud HTML code and display!
+2. Instantiate WordCloud, get word cloud HTML code and display!
 
 ``` python
 from word_cloud.word_cloud_generator import WordCloud
