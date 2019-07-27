@@ -31,11 +31,12 @@ setup(
     download_url='https://github.com/kavgan/word_cloud/archive/{0}.tar.gz'.format(tag()),
     keywords=['word cloud','visualization','text mining'],
     install_requires=[
-        'scikit-learn==0.19.1',
-        'pandas==0.20.3'
+        'scikit-learn>=0.19.1',
+        'pandas>=0.20.3'
     ],
     include_package_data=True,
     entry_points={
 
     }
 )
+
